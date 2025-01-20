@@ -1,0 +1,87 @@
+package com.example.netty.heartbeat.client;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.CharsetUtil;
+
+import java.util.Date;
+
+/**
+ * @author kangdongyang
+ * @version 1.0
+ * @description:
+ * 显然我们不可能再像客户端向服务端发送心跳请求一样，发送给客户端，毕竟在一个高并发的状态，服务端还要做这种多余的操作，就显得很力不从心了。那如何得知服务端挂掉了呢？
+ * netty为我们提供了一个接口ChannelInboundHandler，并实现这个方法channelInactive，当服务端挂掉，客户端会异步调用这个方法。
+ * @date 2025/1/20 16:02
+ */
+public class NettyClientHandler extends ChannelInboundHandlerAdapter {
+    /** 客户端请求的心跳命令  */
+    private static final ByteBuf HEARTBEAT_SEQUENCE = Unpooled.unreleasableBuffer(Unpooled.copiedBuffer("hb_request",
+            CharsetUtil.UTF_8));
+
+    /** 空闲次数 */
+    private int idle_count = 1;
+
+    /** 发送次数 */
+    private int count = 1;
+
+    /**循环次数 */
+    private int fcount = 1;
+
+
+    /**
+     * 建立连接时
+     */
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("建立连接时间："+new Date());
+        // 开启管道的活跃
+        ctx.fireChannelActive();
+    }
+    /**
+     * 关闭连接时
+     */
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("关闭连接时间："+new Date());
+        //可以重连
+        //NettyClient.nettyClient.doConnect(new Bootstrap(),ctx.channel().eventLoop());
+
+    }
+
+    /**
+     * 心跳请求处理
+     * 每4秒发送一次心跳请求;
+     *
+     */
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object obj) throws Exception {
+        System.out.println("循环请求的时间："+new Date()+"，次数"+fcount);
+        if (obj instanceof IdleStateEvent) {
+            IdleStateEvent event = (IdleStateEvent) obj;
+            if (IdleState.WRITER_IDLE.equals(event.state())) {  //如果写通道处于空闲状态,就发送心跳命令
+                if(idle_count <= 3){   //设置发送次数
+                    idle_count++;
+                    ctx.channel().writeAndFlush(HEARTBEAT_SEQUENCE.duplicate());
+                }else{
+                    System.out.println("不再发送心跳请求了！");
+                }
+                fcount++;
+            }
+        }
+    }
+
+    /**
+     * 业务逻辑处理
+     */
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        System.out.println("第"+count+"次"+",客户端接受的消息:"+msg);
+        count++;
+    }
+
+}
