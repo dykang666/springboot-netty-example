@@ -4,25 +4,21 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.example</groupId>
-        <artifactId>springboot-netty-example</artifactId>
+        <artifactId>netty-boot-helloworld</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath> <!-- 可选，父项目的路径 -->
     </parent>
     <groupId>com.example</groupId>
-    <artifactId>boot-netty-client</artifactId>
+    <artifactId>boot-common</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>boot-netty-client</name>
-    <description>boot-netty-client</description>
+    <name>boot-common</name>
+    <description>boot-common</description>
     <properties>
         <java.version>1.8</java.version>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>com.example</groupId>
-            <artifactId>boot-common</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
+
     </dependencies>
+
     <build>
         <plugins>
             <plugin>

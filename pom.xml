@@ -15,9 +15,7 @@
     <description>springboot-netty-example</description>
     <packaging>pom</packaging>
     <modules>
-        <module>boot-netty-server</module>
-        <module>boot-netty-client</module>
-        <module>boot-common</module>
+        <module>boot-netty-helloworld</module>
         <module>netty-springboot-protobuf</module>
         <module>netty-helloworld</module>
         <module>netty-heartbeat</module>
